@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from pydantic import BaseModel
 
@@ -90,7 +90,7 @@ def patient_simple_getter(number: int):
     number -= 1 # 0 is the first index of patients list (not 1) - thats why we need to downgrade the number by 1
     if number < len(patients) and number >= 0:
         return patients[number].patient
-    return int(404)
+    raise HTTPException(status_code=404, detail="Item not found")
 
 
 
