@@ -72,22 +72,22 @@ class patient_simple_response(BaseModel):
     id: int
     patient: patient
 
-patients_counter = 0
+# patients_counter = 0
 patients = []
 
 @app.post('/patient', response_model=patient_simple_response)
 def patient_simple_poster(patient_rq: patient):
     global patients_counter
-    patients_counter += 1
-    patients.append(patient_simple_response(id=patients_counter, patient=patient_rq))
-    return patient_simple_response(id=patients_counter, patient=patient_rq)
+    # patients_counter += 1
+    patients.append(patient_simple_response(id=len(patients), patient=patient_rq))
+    return patient_simple_response(id=(len(patients)-1), patient=patient_rq)
 
 # Zadanie 4
 @app.get('/patient/{number}')
 def patient_simple_getter(number: int):
-    global patients_counter
+    # global patients_counter
     global patients
-    number -= 1 # 0 is the first index of patients list (not 1) - thats why we need to downgrade the number by 1
+    # number -= 1 # 0 is the first index of patients list (not 1) - thats why we need to downgrade the number by 1
     if number < len(patients) and number >= 0:
         return patients[number].patient
     raise HTTPException(status_code=204, detail="No content")
