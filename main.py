@@ -8,8 +8,6 @@ app.counter = 0
 
 
 
-
-
 class HelloNameResp(BaseModel):
     message: str
 
@@ -41,9 +39,9 @@ def receive_something(rq: moj_request):
 # ZADANIE DOMOWE SERIA 1
 
 # zadanie 1
-@app.get('/')
-def hello_world():
-    return {"message": "Hello World during the coronavirus pandemic!"}
+# @app.get('/')
+# def hello_world():
+#     return {"message": "Hello World during the coronavirus pandemic!"}
 
 #zadanie 2
 @app.get('/method')
@@ -72,25 +70,33 @@ class patient_simple_response(BaseModel):
     id: int
     patient: patient
 
-# patients_counter = 0
 patients = []
 
 @app.post('/patient', response_model=patient_simple_response)
 def patient_simple_poster(patient_rq: patient):
     global patients_counter
-    # patients_counter += 1
     patients.append(patient_simple_response(id=len(patients), patient=patient_rq))
     return patient_simple_response(id=(len(patients)-1), patient=patient_rq)
 
 # Zadanie 4
 @app.get('/patient/{number}')
 def patient_simple_getter(number: int):
-    # global patients_counter
     global patients
-    # number -= 1 # 0 is the first index of patients list (not 1) - thats why we need to downgrade the number by 1
     if number < len(patients) and number >= 0:
         return patients[number].patient
     raise HTTPException(status_code=204, detail="No content")
+
+
+# ------------------------------
+# WYKLAD 3
+from fastapi import Request
+
+@app.get('/', response_model=HelloNameResp) # wyklad 3 zad. 1
+@app.get('/welcome', response_model=HelloNameResp)
+def greet_user(request: Request):
+    print(request)
+    return HelloNameResp(message='Hello user')
+
 
 
 
