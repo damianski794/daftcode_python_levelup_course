@@ -1,8 +1,12 @@
 from fastapi import FastAPI, HTTPException
 
 from pydantic import BaseModel
+#from .routers import users #todo przerobic zeby odwolywac sie do tego usera z folderu .routers
+import users #todo przerzucic to do folderu .routers (czytaj powyzej)
 
 app = FastAPI()
+app.include_router(users.router)
+
 
 app.counter = 0
 
@@ -94,7 +98,7 @@ from fastapi import Request
 @app.get('/', response_model=HelloNameResp) # wyklad 3 zad. 1
 @app.get('/welcome', response_model=HelloNameResp)
 def greet_user(request: Request):
-    print(request)
+    #print(request)
     return HelloNameResp(message='Hello user')
 
 
