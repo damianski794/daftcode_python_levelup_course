@@ -24,7 +24,7 @@ def user_must_be_logged_CHECK(credentials: HTTPBasicCredentials = Depends(securi
     #print(correct_username,correct_password)
 
     if not (correct_username and correct_password):
-        raise HTTPException(status_code=404, detail="Unauthorised, login or password incorrect")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised, login or password incorrect")
 
 
 
