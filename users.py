@@ -52,10 +52,18 @@ def login_user(response: Response, session_token: str = Depends(user_must_be_log
     set_of_session_tokens.add(session_token)
     #return RedirectResponse("/welcome", status_code=301)#, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
-@router.post('/logout', dependencies=[Depends(user_must_be_logged_CHECK)])
-def logout(response: Response, request: Request):
-    # print(f"logout request.cookies: {request.cookies}") #26.04
-    token = check_existing_session_token(request.cookies.get('session_token'))
-    set_of_session_tokens.remove(token)
-    # print(f"lista tokenow po usuwaniu: {set_of_session_tokens}, a rozmiar {len(set_of_session_tokens)}") #26.04
-    return RedirectResponse("/", status_code=status.HTTP_301_MOVED_PERMANENTLY)
+@router.post('/logout')
+def logout(response: Response, session_token: str = Cookie(None)):
+    if session_token not in set_of_session_tokens:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Lipa z autoryzacją ciasteczkami",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    response.status_code = status.HTTP_302_FOUND
+    response.headers["Location"] = "/"
+    set_of_session_tokens.remove(session_token)
+
+    # token = check_existing_session_token(request.cookies.get('session_token'))
+    # set_of_session_tokens.remove(token)
+    # return RedirectResponse("/", status_code=status.HTTP_301_MOVED_PERMANENTLY)
