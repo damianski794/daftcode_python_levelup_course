@@ -61,7 +61,6 @@ def logout(response: Response, session_token: str = Cookie(None)):
             headers={"WWW-Authenticate": "Basic"},
         )
     response.status_code = status.HTTP_302_FOUND
-    # response.headers["Location"] = "/"
-    set_of_session_tokens.remove(session_token)
+    response.headers["Location"] = "/"
+    set_of_session_tokens.remove(session_token) 
 
-    return RedirectResponse("/",status_code=301)
