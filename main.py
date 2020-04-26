@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import users #todo przerzucic to do folderu .routers (czytaj powyzej)
 
 app = FastAPI()
+
 app.include_router(users.router)
 
 
