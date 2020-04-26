@@ -31,7 +31,6 @@ def user_must_be_logged_CHECK(credentials: HTTPBasicCredentials = Depends(securi
 
     session_token = sha256(bytes(f"{credentials.username}{credentials.password}{SECRET_KEY}", encoding='utf-8')).hexdigest()
     # print(f'sesssion_token = {session_token}') #26.04
-    # list_of_session_tokens.append(session_token)
     return session_token
 
 def check_existing_session_token(token: str)  -> str:

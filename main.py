@@ -1,15 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.templating import Jinja2Templates
 
 from pydantic import BaseModel
 #from .routers import users #todo przerobic zeby odwolywac sie do tego usera z folderu .routers
 import users #todo przerzucic to do folderu .routers (czytaj powyzej)
 
 app = FastAPI()
-
 app.include_router(users.router)
-
-
 app.counter = 0
+templates = Jinja2Templates(directory="templates")
 
 
 
@@ -96,12 +95,15 @@ def patient_simple_getter(number: int):
 # WYKLAD 3
 from fastapi import Request
 
-@app.get('/', response_model=HelloNameResp) # wyklad 3 zad. 1
-@app.get('/welcome', response_model=HelloNameResp)
+@app.get('/', response_model=HelloNameResp) # wyklad 3 zad. 1 ##@app.get('/welcome', response_model=HelloNameResp)
 def greet_user(request: Request):
     #print(request)
     return HelloNameResp(message='Hello user')
 
+
+@app.get('/welcome', dependencies=[Depends(users.user_must_be_logged_CHECK)])
+def welcome_user(request: Request):
+    return templates.TemplateResponse("item.html", {"request": request,"user": "trudnY"})
 
 
 
