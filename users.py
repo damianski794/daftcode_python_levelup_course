@@ -58,4 +58,4 @@ def logout(response: Response, request: Request):
     token = check_existing_session_token(request.cookies.get('session_token'))
     set_of_session_tokens.remove(token)
     # print(f"lista tokenow po usuwaniu: {set_of_session_tokens}, a rozmiar {len(set_of_session_tokens)}") #26.04
-    return RedirectResponse("/")#, status_code=status.HTTP_301_MOVED_PERMANENTLY)
+    return RedirectResponse("/", status_code=status.HTTP_301_MOVED_PERMANENTLY)

@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Cookie, Depends, FastAPI, HTTPException, status
 from fastapi.templating import Jinja2Templates
 
 from pydantic import BaseModel
@@ -101,10 +101,8 @@ def greet_user(request: Request):
     return HelloNameResp(message='Hello user')
 
 
-@app.get('/welcome', dependencies=[Depends(users.user_must_be_logged_CHECK)])
-def welcome_user(request: Request):
-    return templates.TemplateResponse("item.html", {"request": request,"user": "trudnY"})
-
-
-
-
+@app.get('/welcome')#, dependencies=[Depends(users.user_must_be_logged_CHECK)])
+def welcome_user(request: Request, cookie: str = Cookie(None)):
+    if cookie and cookie not in users.set_of_session_tokens:
+        HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised, jest lipa z ciasteczkiem")
+    return templates.TemplateResponse("item.html", {"request": request, "user": "trudnY"})
