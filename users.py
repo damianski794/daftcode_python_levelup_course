@@ -41,6 +41,12 @@ def check_existing_session_token(token: str)  -> str:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised, jest lipa z ciasteczkami")
     return token
 
+def check_if_session_exists(request: Request):
+    token = request.cookies.get('session_token')
+    if token not in set_of_session_tokens:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised")
+    return token
+
 
 @router.post('/login')
 def login_user(response: Response, session_token: str = Depends(user_must_be_logged_CHECK)):
@@ -62,5 +68,5 @@ def logout(response: Response, session_token: str = Cookie(None)):
         )
     response.status_code = status.HTTP_302_FOUND
     response.headers["Location"] = "/"
-    set_of_session_tokens.remove(session_token) 
+    set_of_session_tokens.remove(session_token)
 

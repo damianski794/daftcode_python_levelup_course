@@ -102,7 +102,7 @@ def greet_user(request: Request):
 
 
 @app.get('/welcome')
-def welcome_user(request: Request, cookie: str = Cookie(None)):
+def welcome_user(request: Request, cookie: str = Depends(users.check_if_session_exists)):
     if cookie not in users.set_of_session_tokens:
-        HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised, jest lipa z ciasteczkiem")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised, jest lipa z ciasteczkiem")
     return templates.TemplateResponse("item.html", {"request": request, "user": "trudnY"})
