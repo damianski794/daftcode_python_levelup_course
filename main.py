@@ -101,7 +101,7 @@ def greet_user(request: Request):
     return HelloNameResp(message='Hello user')
 
 
-@app.get('/welcome')#, dependencies=[Depends(users.user_must_be_logged_CHECK)])
+@app.get('/welcome', dependencies=[Depends(users.user_must_be_logged_CHECK)])
 def welcome_user(request: Request, cookie: str = Cookie(None)):
     if cookie not in users.set_of_session_tokens:
         HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorised, jest lipa z ciasteczkiem")
