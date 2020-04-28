@@ -36,7 +36,7 @@ async def get_composer(composer_name: str):
                                         {'composer': composer_name,}).fetchall()
     if not data:
         print('nie ma takiego composera')
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Couldn't find tracks of given composer")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "Couldn't find tracks of given composer"})
 
     data_as_list = [i["Name"] for i in data]
     return data_as_list
