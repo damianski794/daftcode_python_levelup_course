@@ -28,15 +28,18 @@ async def get_tracks(page: int = 0, per_page: int = 10):
 
     return data
 
-# zad. 2
+# zad. 2 NIE WIEM CZEMU TO CUDO NIE PRZECHODZI TESTOW
 @router.get('/tracks/composers')
-async def get_composer(composer_name: str = 'Miles Davis'):
-    data = router.db_connection.execute("""SELECT Name from tracks WHERE Composer = :composer""",
+async def get_composer(composer_name: str):
+    data = router.db_connection.execute("""SELECT Name from tracks WHERE Composer = :composer
+                                        ORDER BY Name""",
                                         {'composer': composer_name,}).fetchall()
     if not data:
         print('nie ma takiego composera')
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Couldn't find tracks of given composer")
-    return data
+
+    data_as_list = [i["Name"] for i in data]
+    return data_as_list
 
 
 
