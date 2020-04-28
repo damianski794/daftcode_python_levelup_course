@@ -7,9 +7,12 @@ from typing import Dict
 from pydantic import BaseModel
 #from .routers import users #todo przerobic zeby odwolywac sie do tego usera z folderu .routers
 import users #todo przerzucic to do folderu .routers (czytaj powyzej)
+import sqlite3_file
+
 
 app = FastAPI()
 app.include_router(users.router)
+app.include_router(sqlite3_file.router)
 app.counter = 0
 templates = Jinja2Templates(directory="templates")
 
