@@ -42,29 +42,32 @@ async def get_composer(composer_name: str):
     return data_as_list
 
 
-
 class Album(BaseModel):
+    title: str
+    artist: int
+
+class Album_response(BaseModel):
     AlbumId: int
     Title: str
     ArtistId: int
 
 # zad. 3
-@router.post('/albums', response_model=Album)
-async def add_new_album(title: str, artist: int, response: Response):
+@router.post('/albums', response_model=Album_response)
+async def add_new_album(album: Album, response: Response):
     cursor = router.db_connection.cursor()
     check_if_artist_exitsts = cursor.execute(
-        """SELECT * FROM artists WHERE ArtistId = :artist_id""", {"artist_id": artist}).fetchall()
+        """SELECT * FROM artists WHERE ArtistId = :artist_id""", {"artist_id": album.artist}).fetchall()
     # print(check_if_artist_exitsts)
     if not check_if_artist_exitsts:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "given artist (artist_id) does not exist"})
 
     cursor.execute(
-        """INSERT INTO albums (Title,ArtistId) VALUES (:title,:artist_id);""", {"title": title,"artist_id": artist})
+        """INSERT INTO albums (Title,ArtistId) VALUES (:title,:artist_id);""", {"title": album.title,"artist_id": album.artist})
     router.db_connection.commit()
 
     response.status_code = status.HTTP_201_CREATED
 
-    return Album(AlbumId=cursor.lastrowid, Title=title, ArtistId=artist)
+    return Album_response(AlbumId=cursor.lastrowid, Title=album.title, ArtistId=album.artist)
 
 
 
@@ -75,4 +78,7 @@ async def get_album(album_id: int):
     if not data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "no albums assigned to this album_id"})
 
+    print("return data w get album id, to:")
+    print(data)
+    
     return data
