@@ -1,6 +1,6 @@
 import sqlite3
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Response
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -50,7 +50,7 @@ class Album(BaseModel):
 
 # zad. 3
 @router.post('/albums', response_model=Album)
-async def add_new_album(title: str, artist: int):
+async def add_new_album(title: str, artist: int, response: Response):
     cursor = router.db_connection.cursor()
     check_if_artist_exitsts = cursor.execute(
         """SELECT * FROM artists WHERE ArtistId = :artist_id""", {"artist_id": artist}).fetchall()
@@ -61,6 +61,8 @@ async def add_new_album(title: str, artist: int):
     cursor.execute(
         """INSERT INTO albums (Title,ArtistId) VALUES (:title,:artist_id);""", {"title": title,"artist_id": artist})
     router.db_connection.commit()
+
+    response.status_code = status.HTTP_201_CREATED
 
     return Album(AlbumId=cursor.lastrowid, Title=title, ArtistId=artist)
 
@@ -74,15 +76,3 @@ async def get_album(album_id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "no albums assigned to this album_id"})
 
     return data
-
-
-
-
-
-
-
-
-
-
-
-
