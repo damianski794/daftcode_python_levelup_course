@@ -2,6 +2,7 @@ import sqlite3
 
 from fastapi import APIRouter, HTTPException, status, Response
 from pydantic import BaseModel
+from typing import Optional
 
 router = APIRouter()
 
@@ -70,7 +71,6 @@ async def add_new_album(album: Album, response: Response):
     return Album_response(AlbumId=cursor.lastrowid, Title=album.title, ArtistId=album.artist_id)
 
 
-
 @router.get("/albums/{album_id}")
 async def get_album(album_id: int):
     data = router.db_connection.execute(
@@ -79,3 +79,55 @@ async def get_album(album_id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "no albums assigned to this album_id"})
 
     return data
+
+
+ # zad. 4
+class Customer(BaseModel):
+     company: Optional[str] = None
+     address: Optional[str] = None
+     city: Optional[str] = None
+     state: Optional[str] = None
+     country: Optional[str] = None
+     postalcode: Optional[str] = None
+     fax: Optional[str] = None
+
+
+@router.put('/customers/{customer_id}')
+async def update_customer(customer: Customer, customer_id: int = 1):
+    cursor = router.db_connection.cursor()
+    customer_check_if_exists = cursor.execute("SELECT * FROM customers WHERE CustomerId = :customer_id", {"customer_id": customer_id}).fetchone()
+
+    if not customer_check_if_exists:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail={"error": "no custemer assigned to this album_id"})
+    print("customer data: ", customer)
+    customer_dict: Customer = customer.dict()
+    print("customer_dict: ", customer_dict)
+    cursor = router.db_connection.execute(
+        """UPDATE customers
+        SET
+        company = IFNULL(:company,company),
+        address = IFNULL(:address, address),
+        city = IFNULL(:city,city),
+        state = IFNULL(:state,state),
+        country = IFNULL(:country,country),
+        PostalCode = IFNULL(:postal_code,PostalCode),
+        Fax = IFNULL(:fax,Fax)
+        
+        WHERE CustomerId = :customer_id""", {"customer_id": customer_id,
+                                             "company": customer_dict["company"],
+                                             "address": customer_dict["address"],
+                                             "city": customer_dict["city"],
+                                             "state": customer_dict["state"],
+                                             "country": customer_dict["country"],
+                                             "postal_code":customer_dict["postalcode"],
+                                             "fax": customer_dict["fax"]})
+    router.db_connection.commit()
+
+
+@router.get('/customers/{customer_id}')
+async def get_customer(customer_id: int):
+    cursor = router.db_connection.cursor()
+    customer_check_if_exists = cursor.execute("SELECT * FROM customers WHERE CustomerId = :customer_id",
+                                              {"customer_id": customer_id}).fetchone()
+    return customer_check_if_exists
