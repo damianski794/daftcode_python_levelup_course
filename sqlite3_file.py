@@ -57,7 +57,7 @@ async def add_new_album(album: Album, response: Response):
     cursor = router.db_connection.cursor()
     check_if_artist_exitsts = cursor.execute(
         """SELECT * FROM artists WHERE ArtistId = :artist_id""", {"artist_id": album.artist_id}).fetchall()
-    # print(check_if_artist_exitsts)
+
     if not check_if_artist_exitsts:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "given artist (artist_id) does not exist"})
 
@@ -66,8 +66,6 @@ async def add_new_album(album: Album, response: Response):
     router.db_connection.commit()
 
     response.status_code = status.HTTP_201_CREATED
-
-    # return {"AlbumId": cursor.lastrowid, "Title": album.title, "ArtistId": album.artist}
 
     return Album_response(AlbumId=cursor.lastrowid, Title=album.title, ArtistId=album.artist_id)
 
@@ -79,8 +77,5 @@ async def get_album(album_id: int):
         """SELECT * FROM albums WHERE AlbumId = :album_id""", {'album_id': album_id}).fetchone()
     if not data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "no albums assigned to this album_id"})
-
-    print("return data w get album id, to:")
-    print(data)
 
     return data
