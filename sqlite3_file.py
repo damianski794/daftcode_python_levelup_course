@@ -1,6 +1,7 @@
 import sqlite3
 
 from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -28,14 +29,13 @@ async def get_tracks(page: int = 0, per_page: int = 10):
 
     return data
 
-# zad. 2 NIE WIEM CZEMU TO CUDO NIE PRZECHODZI TESTOW
+# zad. 2
 @router.get('/tracks/composers')
 async def get_composer(composer_name: str):
     data = router.db_connection.execute("""SELECT Name from tracks WHERE Composer = :composer
                                         ORDER BY Name""",
                                         {'composer': composer_name,}).fetchall()
     if not data:
-        print('nie ma takiego composera')
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "Couldn't find tracks of given composer"})
 
     data_as_list = [i["Name"] for i in data]
@@ -43,10 +43,40 @@ async def get_composer(composer_name: str):
 
 
 
+class Album(BaseModel):
+    AlbumId: int
+    Title: str
+    ArtistId: int
+
 # zad. 3
-# @router.post('/albums')
-# def add_new_album(title: str, artist: int):
-#     pass
+@router.post('/albums', response_model=Album)
+async def add_new_album(title: str, artist: int):
+    cursor = router.db_connection.cursor()
+    check_if_artist_exitsts = cursor.execute(
+        """SELECT * FROM artists WHERE ArtistId = :artist_id""", {"artist_id": artist}).fetchall()
+    # print(check_if_artist_exitsts)
+    if not check_if_artist_exitsts:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "given artist (artist_id) does not exist"})
+
+    cursor.execute(
+        """INSERT INTO albums (Title,ArtistId) VALUES (:title,:artist_id);""", {"title": title,"artist_id": artist})
+    router.db_connection.commit()
+
+    return Album(AlbumId=cursor.lastrowid, Title=title, ArtistId=artist)
+
+
+
+@router.get("/albums/{album_id}")
+async def get_album(album_id: int):
+    data = router.db_connection.execute(
+        """SELECT * FROM albums WHERE AlbumId = :album_id""", {'album_id': album_id}).fetchone()
+    if not data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"error": "no albums assigned to this album_id"})
+
+    return data
+
+
+
 
 
 
