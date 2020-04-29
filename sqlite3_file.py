@@ -91,6 +91,20 @@ class Customer(BaseModel):
      postalcode: Optional[str] = None
      fax: Optional[str] = None
 
+class Customer_response(BaseModel):
+    CustomerId: int
+    FirstName: str
+    LastName: str
+    Company: str
+    Address: str
+    City: str
+    State: str
+    Country: str
+    PostalCode: str
+    Phone: str
+    Fax: str
+    Email: str
+    SupportRepId: int
 
 @router.put('/customers/{customer_id}')
 async def update_customer(customer: Customer, customer_id: int = 1):
@@ -123,6 +137,11 @@ async def update_customer(customer: Customer, customer_id: int = 1):
                                              "postal_code":customer_dict["postalcode"],
                                              "fax": customer_dict["fax"]})
     router.db_connection.commit()
+
+    customer_selected = cursor.execute("SELECT * FROM customers WHERE CustomerId = :customer_id", {"customer_id": customer_id}).fetchone()
+
+    print("customer_selected", customer_selected)
+    return customer_selected
 
 
 @router.get('/customers/{customer_id}')
