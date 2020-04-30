@@ -160,13 +160,13 @@ async def get_statistics(category: str):
     if category == "customers":
         cursor = router.db_connection.cursor() #
         return cursor.execute(
-            """SELECT c.customerid, c.Email, c.Phone, ROUND(SUM(ii.unitprice * ii.quantity),2) AS SUM FROM customers c
+            """SELECT c.customerid, c.Email, c.Phone, ROUND(SUM(ii.unitprice * ii.quantity),2) AS Sum FROM customers c
             JOIN invoices i 
             ON c.customerid = i.customerid
             JOIN invoice_items ii
             ON i.invoiceid = ii.invoiceid
             GROUP BY c.customerid
-            ORDER BY SUM DESC, c.customerid""").fetchall()
+            ORDER BY Sum DESC, c.customerid""").fetchall()
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail={"error": "incorrect category"})
