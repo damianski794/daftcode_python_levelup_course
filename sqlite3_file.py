@@ -113,10 +113,10 @@ async def update_customer(customer: Customer, customer_id: int = 1):
 
     if not customer_check_if_exists:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail={"error": "no custemer assigned to this album_id"})
-    print("customer data: ", customer)
+                            detail={"error": "no customer assigned to this album_id"})
+
     customer_dict: Customer = customer.dict()
-    print("customer_dict: ", customer_dict)
+
     cursor = router.db_connection.execute(
         """UPDATE customers
         SET
@@ -139,8 +139,6 @@ async def update_customer(customer: Customer, customer_id: int = 1):
     router.db_connection.commit()
 
     customer_selected = cursor.execute("SELECT * FROM customers WHERE CustomerId = :customer_id", {"customer_id": customer_id}).fetchone()
-
-    print("customer_selected", customer_selected)
     return customer_selected
 
 
@@ -149,4 +147,26 @@ async def get_customer(customer_id: int):
     cursor = router.db_connection.cursor()
     customer_check_if_exists = cursor.execute("SELECT * FROM customers WHERE CustomerId = :customer_id",
                                               {"customer_id": customer_id}).fetchone()
+    if not customer_check_if_exists:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail={"error": "no customer assigned to this album_id"})
+
     return customer_check_if_exists
+
+
+# zad. 5
+@router.get('/sales')
+async def get_statistics(category: str):
+    if category == "customers":
+        cursor = router.db_connection.cursor() #
+        return cursor.execute(
+            """SELECT c.customerid, c.Email, c.Phone, ROUND(SUM(ii.unitprice * ii.quantity),2) AS SUM FROM customers c
+            JOIN invoices i 
+            ON c.customerid = i.customerid
+            JOIN invoice_items ii
+            ON i.invoiceid = ii.invoiceid
+            GROUP BY c.customerid
+            ORDER BY SUM DESC, c.customerid""").fetchall()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail={"error": "incorrect category"})
