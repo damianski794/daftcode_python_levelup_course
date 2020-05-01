@@ -167,11 +167,11 @@ async def get_statistics(category: str):
             ON i.invoiceid = ii.invoiceid
             GROUP BY c.customerid
             ORDER BY Sum DESC, c.customerid""").fetchall()
-    if category == 'genres':
+    elif category == 'genres': # todo do poprawki bo nie przechodzi testow
         cursor = router.db_connection.cursor()
         return cursor.execute(
             """SELECT g.name AS Name, SUM(ii.quantity) AS Sum FROM tracks t 
-            JOIN invoice_items ii
+            JOIN invoice_items ii 
             ON t.trackid = ii.trackid
             JOIN genres g
             ON t.genreid = g.genreid
