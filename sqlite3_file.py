@@ -176,7 +176,7 @@ async def get_statistics(category: str):
             JOIN genres g
             ON t.genreid = g.genreid
             GROUP BY g.genreid
-            ORDER BY g.genreid desc, g.name
+            ORDER BY Sum desc, g.name
              """).fetchall()
 
     else:
